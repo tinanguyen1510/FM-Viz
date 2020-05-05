@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="deathcauses" content="width=device-width, initial-scale=1">
+<link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900" rel="stylesheet" />
+<link href="default.css" rel="stylesheet" type="text/css" media="all" />
+<!-- <link href="fonts.css" rel="stylesheet" type="text/css" media="all" /> -->
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<link href='https://fonts.googleapis.com/css?family=Eagle Lake' rel='stylesheet'>
+<link href='https://fonts.googleapis.com/css?family=Crete Round' rel='stylesheet'>
+</head>
+<!-- <style type="text/css">
+  header {
+  position: fixed;
+  width: 100%;
+  height: var(--heading-height);
+}
+
+h1 {
+  font-size: calc(1.2em + 1.6vw);
+  font-weight: 700;
+  letter-spacing: .01em;
+  padding: 5rem 3rem 5rem 3rem;
+  text-shadow: .022em .022em .022em #111;
+  background-color: black;
+  color: #66FCF1
+  /*color: #fff;*/
+}
+</style> -->
+
+<body>
+<div id="page" class="container" >
+  <div>
+  <div id="header" style="float: left">
+
+    <div id="menu" >
+      <ul>
+        <li class="current_page_item"><a href="#intro" accesskey="1" title="">Introduction</a></li>
+        <li class="current_page_item"><a href="#data" accesskey="2" title="">Data</a></li>
+        <li class="current_page_item"><a href="#eda" accesskey="3" title="">Exploratory Data Analysis</a></li>
+        <li class="current_page_item"><a href="#model" accesskey="4" title="">Modeling</a></li>
+        <li class="current_page_item"><a href="#con" accesskey="5" title="">Conclusion</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="main" style="float: right">
+
+    <div id="welcome">
+      <div class="title">
+        <h1>Mortgage Default Visualization <br>
+        <span class="byline">Tina Nguyen</span></h1>
+      </div>
+      
+      
+    </div>
+
+  <div id="intro">
+    <div>
+      <h3><b>I. Introduction</b></h3>
+      <p>Mortgage default occurs when a borrower fails to make a repayment to the lender. This project analyzes the characterics of borrowers and loans that would later default using the data available at origination. Being able to flag a bad loan before making a funding decision is an ideal scenario for both the lenders and borrowers. The lenders would be more careful about funding that loan, while the borrowers, if rejected, are not taking more debt than they can repay. Therefore, being able to flag a loan at the origination state is very important. </p>
+
+    </div>
+  </div>
+
+
+  <div id="data">
+    <div>
+      <h3><b>II. Data</b></h3>
+      <h5><b>1. Data Source </b></h5>
+<p>This project uses Freddie Mac Single Family Loan Level Data and performs analysis on all loans funded by Freddie Mac between 2010 and 2018. The data was obtained from Freddie Mac website in as zip files. Every zip file contains data of the entire year which was broken down into data of each quarter. Each quarter contains two different text files: (1) Origination Data and (2) Performance Data. The structure of the data is as follow:  </p>
+<ul>
+    <li>historical_data_200X.zip</li>
+    <ul>
+        <li>historical_data1_Q1200X.zip</li>
+        <li>historical_data1_Q2200X.zip</li>
+        <li>historical_data1_Q3200X.zip</li>
+        <li>historical_data1_Q4200X.zip</li>
+        <ul>
+            <li>historical_data1_Q1200X.txt (Origination Data)</li>
+            <li>historical_data1_time_Q1200X.txt (Performance Data)</li>
+        </ul></ul></ul>
+      
+<p>The 30-year fixed mortgage interest rate downloaded from Freddie Mac website contains the monthly interest rate for 30-year fix-rate mortgages between 2013 and 2018. This variable was later used in calculating the rate of Spread at Origination (SATO). 
+The Origination data contains variables that indicate the characteristics of the borrowers, the loans, and the properties. More specifically:<p>
+<ol>
+<li>  Borrower characteristics: Credit Score, First Time Homebuyer, Debt-to-Income (DTI), Total number of Borrowers </li>
+<li>  Loans characteristics: Date of First Payment, Maturity Date, Mortgage Insurance (MI) Percentage, Combined Loan-to-Value, Loan-to-Value (LTV), Interest Rate, Channel, Loan Purpose, Term, Seller, Servicer, Conformity Flag, Unpaid Principal Balance, Quarter and Year when the loan was funded </li>
+<li>  Property characteristics: Metropolitan Statistical Areas (MSA) , Unit, Occupancy Status, Property State, Property Type, Postal Code </li>
+ </ol>  
+ 
+<!-- <img align="middle" src='header.PNG' class="center" /> -->
+<figure>
+    <img src='header.PNG' class="center" >
+    <figcaption style="text-align: center; font-style: italic; font-style: xx-small">Fig.1 - Samples from the Origination data</figcaption>
+    </figure>
+<br>
+<p>The Performance data contains information on how the loans perform monthly. It contains variable such as Current Unpaid Principal Balance, Loan Status, Loan Age, Number of Years to Maturity, etc. For the purpose of this study, only variable Loan Status from Performance data was used.</p>
+  <h5><b>2. Data Preprocessing </b></h5>
+  <ul>
+    <li>Extract zip files into text files </li>
+    <li>Import all origination files, concatenate them into one dataframe, and replace placeholder values with NaN </li>
+    <li>Select loans that delinquent for more than 90 days from performance data</li>
+    <li>Merge unique loan ids from performance data to orignation data</li>
+    <li>Remove all NaN values </li>
+    <li>Calculate the average interest rate for every quarter using Excel</li>
+    <li>Merge the quarterly interest rate to the master dataframe</li>
+    <li>Calculate the Spread at Orgination (SATO) rate </li>
+    <strong>SATO (%) = Average Fixed Rate - Stated Interest Rate</strong>
+</ul>
+  <p>The code below is a snipet of the data cleaning process.</p>
+  <!-- <img align="middle" src='code_snipet.PNG' class="center" /> -->
+  <figure>
+    <img src='code_snipet.PNG' class="center" >
+    <figcaption style="text-align: center; font-style: italic; font-style: xx-small">Fig.2 - Data preprocessing code snipet</figcaption>
+    </figure>
+  <br>
+    </div> 
+  </div>
+
+  <div id="eda">
+    <div>
+      <h3><b>III. Exploratory Data Analysis</b></h3>
+      <h5><b>1. Geographical Distribution</b> </h5>
+      <br>
+      <div class='tableauPlaceholder' id='viz1588630766058' style='position: relative'><noscript><a href='#'><img alt=' ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;ED&#47;EDA_15881893307010&#47;Population&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='EDA_15881893307010&#47;Population' /><param name='tabs' value='yes' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;ED&#47;EDA_15881893307010&#47;Population&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='filter' value='publish=yes' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1588630766058');                    var vizElement = divElement.getElementsByTagName('object')[0];                    vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth-300)+'px';                    var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
+  <br>
+  <p>Tab Overview shows the total number of loans funded in each state. Click on any state in the first plot to see the corresponding total by year in the second plot. <br>
+  Tab Population (%) compares the number of loans in serious delinquency vs performing loans. <br>
+  Tab Top States with Delinquency shows the top 5 states with the highest rate of delinquency. <br>
+  During the 2013-2018 period, Freddie Mac purchased the most properties in California, Texas, Florida, and Ohio. These states were also the ones with the highest delinquency rates. The total number of delinquency in these states made up about 50% of all delinquency in the US.</p>
+ 
+    <h5><b>2. Borrowers and Loans' Characteristics</b> </h5>
+    <br>
+  <div class='tableauPlaceholder' id='viz1588633182512' style='position: relative'><noscript><a href='#'><img alt=' ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Co&#47;Comparisons_15881859506950&#47;Mean&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='Comparisons_15881859506950&#47;Mean' /><param name='tabs' value='yes' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Co&#47;Comparisons_15881859506950&#47;Mean&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='filter' value='publish=yes' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1588633182512');                    var vizElement = divElement.getElementsByTagName('object')[0];                    vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth-300)+'px';                    var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
+  <br>
+  <p>The plots above calculate the average of each numberical characteristics and compare between performning loans and delinquent loans. Overall, average DTI, LTV, MI percentage, and interest rate of default loans are higher than performing loans. Average credit score and SATO rate of delinquent loans are higher than performing loans. The wide gap in SATO rate between these loan statuses indicates on average, both perfoming loans and delinquent loans received higher interest rates than market average. Additionally, loans that would later delinquent received a much higher interest rates at origination than loans that would later perform.</p>
+    </div>
+  </div>
+
+<div id="model">
+    <div>
+      <h3><b>IV. Modeling</b></h3>
+      <p>Before modeling, One Hot Encoder was applied to categorical values and Label Encoder was applied to the target.
+    The data was standardized and split into training and testing sets with the ratio of 7:3.
+    The dataset was resampled twice to compare the results of different sampling techinques.
+    Classifiers such as Logistic Regression, Decision Tree, and XGBoost were applied.
+    Models were evaluated using precision score.
+    The code below fits different classifers and returns the scores for each model.</p>
+  <!-- <img align="middle" src='code_snipet2.PNG' class="center" /> -->
+  <figure>
+    <img src='code_snipet2.PNG' class="center" >
+    <figcaption style="text-align: center; font-style: italic; font-style: xx-small">Fig.3 - Modeling code snipet</figcaption>
+    </figure>
+
+  <br>
+<!--   <div class="rowi">
+  <div class="columni">
+    <figure>
+    <img src='full pop.png' class="center50" >
+    <figcaption style="text-align: center; font-style: italic; font-style: xx-small">Fig.4 - Full population</figcaption>
+    </figure>
+  </div>
+  <div class="columni">
+    <figure>
+    <img src='under50.png' class="center50">
+    <figcaption style="text-align: center; font-style: italic; font-style: xx-small">Fig.5 - Undersampling</figcaption>
+    </figure>
+  </div>
+  <div class="columni">
+    <img src='combine pop.png' class="center50"  >
+    <figcaption style="text-align: center; font-style: italic; font-style: xx-small">Fig.6 - Combination</figcaption>
+    </figure>
+  </div>
+</div> -->
+<p> <i>Figure 4</i> shows the class distributions of the original dataset and after resampling. The first plot shows the ditribution of the original dataset. Note that delinquency rate is only 0.77% of the entire population. 
+  The second plot shows the class distribution after undersampling the data by 50%. Samples from the majority class was removed so that the ratio of the two classes is 1:2.
+The third plot shows the data after applying both oversampling and undersampling. The minority class was increased by 20% from 20,000 in the original dataset to 40,000 in this dataset. Meanwhile, the majority class was decreased so that it is 30% more than the minority class.</p>
+<div style="width:100%; background-color:white; height:50%; overflow:auto;">
+    <div style="width: 100%; height: 100%" class="dis">
+     <figure>
+      <img src="full pop.png" width="33%" height="33%"/>
+    
+      <img src="under50.png" width="33%" height="33%"/>
+      <img src="combine pop.png" width="33%" height="33%" />
+      <figcaption style="text-align: center; font-style: italic; font-style: xx-small">Fig.4 - Class distribution with full population, undersampling, and combination</figcaption>
+    </figure>
+    </div>
+  </div>
+
+
+  <h5><b>1. Base Model - Full Population</b></h5>
+  
+  <!-- <figure>
+  <img align="middle" src='full pop.png' class="center50" >
+  <figcaption style="text-align: center; font-style: italic; font-style: xx-small">Fig.4 - Full population</figcaption>
+  </figure> -->
+  
+  <p>The table below shows the scores after training on the entire population. Decision Tree overfitted in the training dataset. Precision score and F1 score of Logisic Regression is very high. This is because it failed to classify delinquency 100% of the time. If the evaluation criteria changes to identify loans that would later delinquent, this model would fail. Therefore, XGBoost on the full population is selected as the best model with the precision score of 0.829.</p>
+  <table class='centert' style="overflow-x:auto" id="t01">
+  <tr>
+    <th>Model</th>
+    <th>Precision Score Training</th>
+    <th>F1 Score Training</th>
+    <th>Precision Score Testing</th>
+    <th>F1 Score Testing</th>
+  </tr>
+  <tr>
+    <td>Logistic Regression</td>
+      <td>0.996</td>
+      <td>0.498</td>
+    <td>0.992</td>
+    <td>0.996</td>
+  </tr>
+  <tr>
+    <td>Decision Tree</td>
+    <td>1.0</td>
+      <td>1.0</td>
+      <td>0.512</td>
+    <td>0.514</td>
+  </tr>
+    <tr>
+    <td>XGBoost</td>
+        <td>0.996</td>
+        <td>0.500</td>
+    <td>0.829</td>
+    <td>0.499</td>
+  </tr>
+</table>
+  
+  <h5><b>2. Undersampling 50% </b></h5>
+  
+ <!--  <figure>
+  <img align="middle" src='under50.png' class="center50">
+  <figcaption style="text-align: center; font-style: italic; font-style: xx-small">Fig.5 - Undersampling</figcaption>
+  </figure> -->
+
+  <p>The above plot shows the scores for training and testing sets after undersampling. Note that Decision Tree overfitted once again. XGBoost and Logistic Regression have the highest accuracy score. However, Logistic Regression has higher F1 score on the testing data. Overall, undersampling returned worse results than applying the classifiers on the entire population.</p>
+  <table class="centert" style="overflow-x:auto" id="t01">
+  <tr>
+    <th>Model</th>
+    <th>Precision Score Training</th>
+    <th>F1 Score Training</th>
+    <th>Precision Score Testing</th>
+    <th>F1 Score Testing</th>
+  </tr>
+  <tr>
+    <td>Logistic Regression</td>
+      <td>0.752</td>
+      <td>0.735</td>
+    <td>0.515</td>
+    <td>0.497</td>
+  </tr>
+  <tr>
+    <td>Decision Tree</td>
+    <td>1.0</td>
+      <td>1.0</td>
+      <td>0.507</td>
+    <td>0.452</td>
+  </tr>
+    <tr>
+    <td>XGBoost</td>
+        <td>0.817</td>
+        <td>0.809</td>
+    <td>0.515</td>
+    <td>0.494</td>
+  </tr>
+</table>
+  
+  <h5><b>3. Combination</b></h5>
+
+<!--   <figure>
+  <img align="middle" src='combine pop.png' class="center50"  >
+  <figcaption style="text-align: center; font-style: italic; font-style: xx-small">Fig.6 - Combination</figcaption>
+  </figure> -->
+
+  <p>The table below shows the results after the data was oversampled by 20% and undersampled by 30%. On the testing set, XGBoost outperformed other models in both precision and F1 scores. The combination between oversampling and undersampling yeilded better results than just applying undersampling alone.</p>
+  <table class='centert' style="overflow-x:auto" id="t01">
+  <tr>
+    <th>Model</th>
+    <th>Precision Score Training</th>
+    <th>F1 Score Training</th>
+    <th>Precision Score Testing</th>
+    <th>F1 Score Testing</th>
+  </tr>
+  <tr>
+    <td>Logistic Regression</td>
+      <td>0.747</td>
+      <td>0.695</td>
+    <td>0.521</td>
+    <td>0.524</td>
+  </tr>
+  <tr>
+    <td>Decision Tree</td>
+    <td>1.0</td>
+      <td>1.0</td>
+      <td>0.511</td>
+    <td>0.514</td>
+  </tr>
+    <tr>
+    <td>XGBoost</td>
+        <td>0.792</td>
+        <td>0.761</td>
+    <td>0.523</td>
+    <td>0.526</td>
+  </tr>
+</table>
+
+ </div>
+</div>
+
+<div id="con">
+    <div>
+      <h3><b>V. Conclusion</b></h3>
+      
+  <p>Through extensive analysis, this study:
+<ul>
+<li>Identified the states with the most delinquency rate</li>
+<li>Profiled the characteristics of delinquent and performing loans</li>
+<ul><li>Discovered the relationship between SATO and delinquent loans</li></ul>
+<li>Experimented with different combinations of classifiers and resampling techniques</li>
+  </ul></p>
+    </div>
+  </div>
+
+</body>
+</html>
+
+    <!-- <div id="featured">
+      <div class="title">
+        <h2>Maecenas lectus sapien</h2>
+        <span class="byline">Integer sit amet aliquet pretium</span>
+      </div>
+      <ul class="style1">
+        <li class="first">
+          <p class="date"><a href="#">Jan<b>05</b></a></p>
+          <h3>Amet sed volutpat mauris</h3>
+          <p><a href="#">Consectetuer adipiscing elit. Nam pede erat, porta eu, lobortis eget, tempus et, tellus. Etiam neque. Vivamus consequat lorem at nisl. Nullam non wisi a sem semper eleifend. Etiam non felis. Donec ut ante.</a></p>
+        </li>
+        <li>
+          <p class="date"><a href="#">Jan<b>03</b></a></p>
+          <h3>Sagittis diam dolor amet</h3>
+          <p><a href="#">Etiam non felis. Donec ut ante. In id eros. Suspendisse lacus turpis, cursus egestas at sem. Mauris quam enim, molestie. Donec leo, vivamus fermentum nibh in augue praesent congue rutrum.</a></p>
+        </li>
+        <li>
+          <p class="date"><a href="#">Jan<b>01</b></a></p>
+          <h3>Amet sed volutpat mauris</h3>
+          <p><a href="#">Consectetuer adipiscing elit. Nam pede erat, porta eu, lobortis eget, tempus et, tellus. Etiam neque. Vivamus consequat lorem at nisl. Nullam non wisi a sem semper eleifend. Etiam non felis. Donec ut ante.</a></p>
+        </li>
+        <li>
+          <p class="date"><a href="#">Dec<b>31</b></a></p>
+          <h3>Sagittis diam dolor amet</h3>
+          <p><a href="#">Etiam non felis. Donec ut ante. In id eros. Suspendisse lacus turpis, cursus egestas at sem. Mauris quam enim, molestie. Donec leo, vivamus fermentum nibh in augue praesent congue rutrum.</a></p>
+        </li>
+      </ul>
+    </div>
+    <div id="copyright">
+      <span>&copy; Untitled. All rights reserved. | Photos by <a href="http://fotogrph.com/">Fotogrph</a></span>
+      <span>Design by <a href="http://templated.co" rel="nofollow">TEMPLATED</a>.</span>
+    </div> -->
+<!--   </p>
+  </div>
+
+</div>
+</body>
+</html>
+ -->
+
+
