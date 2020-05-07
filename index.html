@@ -51,7 +51,7 @@
     <div>
       <h3><b>II. Data</b></h3>
       <h5><b>1. Data Source </b></h5>
-<p>This project uses Freddie Mac Single Family Loan Level Data and performs analysis on all loans funded by Freddie Mac between 2010 and 2018. The data was obtained from Freddie Mac website in as zip files. Every zip file contains data of the entire year which was broken down into data of each quarter. Each quarter contains two different text files: (1) Origination Data and (2) Performance Data. The structure of the data is as follow:  </p>
+<p>This project uses Freddie Mac Single Family Loan Level Data and performs analysis on all loans funded by Freddie Mac between 2013 and 2018. The data was obtained from Freddie Mac website in as zip files. Every zip file contains data of the entire year which was broken down into data of each quarter. Each quarter contains two different text files: (1) Origination Data and (2) Performance Data. The structure of the data is as follow:  </p>
 <ul>
     <li>historical_data_200X.zip</li>
     <ul>
@@ -64,8 +64,7 @@
             <li>historical_data1_time_Q1200X.txt (Performance Data)</li>
         </ul></ul></ul>
       
-<p>The 30-year fixed mortgage interest rate downloaded from Freddie Mac website contains the monthly interest rate for 30-year fix-rate mortgages between 2013 and 2018. This variable was later used in calculating the rate of Spread at Origination (SATO). 
-The Origination data contains variables that indicate the characteristics of the borrowers, the loans, and the properties. More specifically:<p>
+<p>The Origination data contains variables that indicate the characteristics of the borrowers, the loans, and the properties. More specifically:<p>
 <ol>
 <li>  Borrower characteristics: Credit Score, First Time Homebuyer, Debt-to-Income (DTI), Total number of Borrowers </li>
 <li>  Loans characteristics: Date of First Payment, Maturity Date, Mortgage Insurance (MI) Percentage, Combined Loan-to-Value, Loan-to-Value (LTV), Interest Rate, Channel, Loan Purpose, Term, Seller, Servicer, Conformity Flag, Unpaid Principal Balance, Quarter and Year when the loan was funded </li>
@@ -79,7 +78,9 @@ The Origination data contains variables that indicate the characteristics of the
     </figure>
 <br>
 <p>The Performance data contains information on how the loans perform monthly. It contains variable such as Current Unpaid Principal Balance, Loan Status, Loan Age, Number of Years to Maturity, etc. For the purpose of this study, only variable Loan Status from Performance data was used.</p>
-  <h5><b>2. Data Preprocessing </b></h5>
+  <p>The 30-year fixed mortgage interest rate downloaded from Freddie Mac website contains the monthly interest rate for 30-year fix-rate mortgages between 2013 and 2018. This variable was later used in calculating the rate of Spread at Origination (SATO). </p>
+
+      <h5><b>2. Data Preprocessing </b></h5>
   <ul>
     <li>Extract zip files into text files </li>
     <li>Import all origination files, concatenate them into one dataframe, and replace placeholder values with NaN </li>
